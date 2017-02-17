@@ -30,7 +30,7 @@
     "kerberos": "0.0.22",
     "mkdirp": "~0.5.0",
     "moment": "~2.15.1",
-    "mongodb": "~2.0.55",
+    "mongodb": "2.2.11",
     "mysql": "^2.5.5",
     "optimist": "~0.6.1",
     "parse-database-url": "~0.2.2",
