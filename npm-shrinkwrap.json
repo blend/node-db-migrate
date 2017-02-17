@@ -67,11 +67,6 @@
       "from": "isarray@0.0.1",
       "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
     },
-    "kerberos": {
-      "version": "0.0.22",
-      "from": "kerberos@>=0.0.0 <0.1.0",
-      "resolved": "https://registry.npmjs.org/kerberos/-/kerberos-0.0.22.tgz"
-    },
     "minimist": {
       "version": "0.0.8",
       "from": "minimist@0.0.8",
