@@ -1,136 +1,63 @@
-var recursive = require('final-fs').readdirRecursive;
+require('pkginfo')(module, 'version'); // jshint ignore:line
 var fs = require('fs');
-var driver = require('./lib/driver');
 var path = require('path');
-var log = require('./lib/log');
 
-exports.dataType = require('./lib/data_type');
-exports.config = require('./lib/config');
+exports.dataType = require('db-migrate-shared').dataType;
 
-var internals = {};
+function loadPluginList () {
+  var plugins = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8')
+  );
+  var targets = [];
 
-exports.connect = function(config, passedClass, callback) {
-  driver.connect(config, internals, function(err, db) {
-    if (err) { callback(err); return; }
+  plugins = Object.assign(plugins.dependencies, plugins.devDependencies);
 
-    if(internals.migrationMode)
-    {
-      var dirPath = path.resolve(config['migrations-dir'] || 'migrations');
-
-      if(internals.migrationMode !== 'all')
-      {
-        var switched = false,
-            newConf;
-
-        try {
-          newConf = require(path.resolve(config['migrations-dir'] || 'migrations', internals.migrationMode) + '/config.json');
-          log.info('loaded extra config for migration subfolder: "' + internals.migrationMode + '/config.json"');
-          switched = true;
-        } catch(e) {}
-
-        if(switched) {
-
-          db.switchDatabase(newConf, function()
-          {
-            internals.locTitle = internals.migrationMode;
-            callback(null, new passedClass(db, config['migrations-dir'], internals.mode !== 'static', internals));
-          });
-        }
-        else
-        {
-          internals.locTitle = internals.migrationMode;
-          callback(null, new passedClass(db, config['migrations-dir'], internals.mode !== 'static', internals));
-        }
-      }
-      else
-      {
-      recursive(dirPath, false, config['migrations-dir'] || 'migrations')
-      .then(function(files) {
-          var oldClose = db.close;
-
-          files = files.filter(function (file) {
-            return file !== 'migrations' && fs.statSync(file).isDirectory();
-          });
-
-          files.push('');
-
-          db.close = function(cb) { migrationFiles(files, callback, config, passedClass, db, oldClose, cb); };
-
-          db.close();
-        });
-      }
-    }
-    else
-      callback(null, new passedClass(db, config['migrations-dir'], internals.mode !== 'static', internals));
-
-  });
-};
-
-exports.driver = function(config, callback) {
-
-  driver.connect(config, internals, callback);
-};
-
-function migrationFiles(files, callback, config, passedClass, db, close, cb) {
-  var file,
-      switched = false,
-      newConf;
-
-  if(files.length === 1)
-  {
-    db.close = close;
+  for (var plugin in plugins) {
+    if (plugin.startsWith('db-migrate-plugin')) targets.push(plugin);
   }
 
-  file = files.pop();
-
-  if(file !== '')
-  {
-
-    try {
-      newConf = require(path.resolve(file + '/config.json'));
-      log.info('loaded extra config for migration subfolder: "' + file + '/config.json"');
-      switched = true;
-    } catch(e) {}
-  }
-
-  db.switchDatabase((switched) ? newConf : config.database, function()
-  {
-    internals.matching = file.substr(file.indexOf(config['migrations-dir'] || 'migrations') +
-        (config['migrations-dir'] || 'migrations').length + 1);
-
-    if(internals.matching.length === 0)
-      internals.matching = '';
-
-
-    internals.locTitle = internals.matching;
-    callback(null, new passedClass(db, config['migrations-dir'], internals.mode !== 'static', internals));
-
-    if(typeof(cb) === 'function')
-      cb();
-
-  });
+  return targets;
 }
 
-exports.createMigration = function(migration, callback) {
+function loadPlugins () {
+  var plugins = loadPluginList();
+  var i = 0;
+  var length = plugins.length;
+  var hooks = {};
 
-  migration.write(function(err) {
+  for (; i < length; ++i) {
+    var plugin = require(path.join(process.cwd(), 'node_modules', plugins[i]));
 
-    if (err) {
-
-      callback(err);
-      return;
+    if (
+      typeof plugin.name !== 'string' ||
+      !plugin.hooks ||
+      !plugin.loadPlugin
+    ) {
+      continue;
     }
 
-    callback(null, migration);
-  });
-};
+    plugin.hooks.map(function (hook) {
+      hooks[hook] = hooks[hook] || [];
+      hooks[hook].push(plugin);
+    });
+  }
 
-exports.exportInternals = function( intern ) {
+  return hooks;
+}
 
-  internals = intern;
-};
+module.exports.getInstance = function (isModule, options, callback) {
+  delete require.cache[require.resolve('./api.js')];
+  delete require.cache[require.resolve('optimist')];
+  var Mod = require('./api.js');
+  var plugins = {};
 
-exports.importInternals = function() {
+  try {
+    if (!options || !options.noPlugins) plugins = loadPlugins();
+  } catch (ex) {}
 
-  return internals;
+  if (options && options.plugins) {
+    plugins = Object.assign(plugins, options.plugins);
+  }
+
+  return new Mod(plugins, isModule, options, callback);
 };
