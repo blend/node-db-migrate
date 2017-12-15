@@ -101,18 +101,15 @@ function createMigrationDir(dir, callback) {
     }
   });
 }
-=======
-resolve('db-migrate', {
 
+resolve('db-migrate', {
   basedir: process.cwd()
 }, function (error, localModule) {
   var DBMigrate, dbmigrate;
->>>>>>> upstream/master
 
   if (error) {
     DBMigrate = require('../');
   } else {
-<<<<<<< HEAD
     config.load(argv.config, argv.env);
   }
   if(verbose) {
@@ -209,17 +206,12 @@ function executeUp(printToRunOnly) {
 
   if(!argv.count) {
     argv.count = Number.MAX_VALUE;
-=======
     DBMigrate = require(localModule);
     log.verbose('Detected and using the projects local version of db-migrate. ' +
       '\'' + localModule + '\'');
->>>>>>> upstream/master
   }
-
   if (typeof (DBMigrate.getInstance) !== 'function') {
     DBMigrate = require('../');
-
-<<<<<<< HEAD
     if(global.locTitle)
         migrator.migrationsDir = path.resolve(argv['migrations-dir'], global.locTitle);
     else
@@ -230,18 +222,15 @@ function executeUp(printToRunOnly) {
       log.verbose('migration table created');
       migrator.up(argv, onComplete.bind(this, migrator), printToRunOnly);
     });
-  });
+  };
 }
 
 function executeDown() {
-
   if(!argv.count) {
     log.info('Defaulting to running 1 down migration.');
     argv.count = 1;
-=======
     log.warn('Using global instead of local detected version as you have a ' +
       'version older than 0.10.0 in your projects package.json!');
->>>>>>> upstream/master
   }
 
   dbmigrate = DBMigrate.getInstance();
@@ -250,13 +239,10 @@ function executeDown() {
       .then(function () {
         dbmigrate.run();
       });
-<<<<<<< HEAD
-    }
-    else
-      return;
-  });
-
-}
+  }
+  else
+    return;
+});
 
 function onComplete(migrator, originalErr) {
   migrator.driver.close(function(err) {
