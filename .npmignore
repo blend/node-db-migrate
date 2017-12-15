@@ -1,5 +1,8 @@
+.github
 test
 migrations
+VCSeeder
+Seeder
 node_modules
 *.db
 database.json
@@ -8,3 +11,4 @@ database.json
 Seeder
 VCSeeder
 archive
+.db-migraterc

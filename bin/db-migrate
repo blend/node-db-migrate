@@ -1,20 +1,12 @@
 #!/usr/bin/env node
 
-var assert = require('assert');
-var fs = require('fs');
-var path = require('path');
-var util = require('util');
-var mkdirp = require('mkdirp');
-var optimist = require('optimist');
-var config = require('../lib/config.js');
-var index = require('../index');
-var log = require('../lib/log');
-var pkginfo = require('pkginfo')(module, 'version');
-var dotenv = require('dotenv');
+var resolve = require('resolve');
+var log = require('db-migrate-shared').log;
 
-//global declaration for detection like it's done in umigrate
-dbm = require( '../' );
-async = require( 'async' );
+process.title = 'db-migrate';
+if (process.argv.indexOf('--verbose') !== -1 ||
+     process.argv.indexOf('-v') !== -1
+) { global.verbose = true; }
 
 dotenv.load({ silent: true });
 
@@ -109,11 +101,18 @@ function createMigrationDir(dir, callback) {
     }
   });
 }
+=======
+resolve('db-migrate', {
 
-function loadConfig() {
-  if (process.env.DATABASE_URL) {
-    config.loadUrl(process.env.DATABASE_URL, argv.env);
+  basedir: process.cwd()
+}, function (error, localModule) {
+  var DBMigrate, dbmigrate;
+>>>>>>> upstream/master
+
+  if (error) {
+    DBMigrate = require('../');
   } else {
+<<<<<<< HEAD
     config.load(argv.config, argv.env);
   }
   if(verbose) {
@@ -210,11 +209,17 @@ function executeUp(printToRunOnly) {
 
   if(!argv.count) {
     argv.count = Number.MAX_VALUE;
+=======
+    DBMigrate = require(localModule);
+    log.verbose('Detected and using the projects local version of db-migrate. ' +
+      '\'' + localModule + '\'');
+>>>>>>> upstream/master
   }
 
-  index.connect(config.getCurrent().settings, function(err, migrator) {
-    assert.ifError(err);
+  if (typeof (DBMigrate.getInstance) !== 'function') {
+    DBMigrate = require('../');
 
+<<<<<<< HEAD
     if(global.locTitle)
         migrator.migrationsDir = path.resolve(argv['migrations-dir'], global.locTitle);
     else
@@ -233,60 +238,19 @@ function executeDown() {
   if(!argv.count) {
     log.info('Defaulting to running 1 down migration.');
     argv.count = 1;
+=======
+    log.warn('Using global instead of local detected version as you have a ' +
+      'version older than 0.10.0 in your projects package.json!');
+>>>>>>> upstream/master
   }
 
-  index.connect(config.getCurrent().settings, function(err, migrator) {
-    assert.ifError(err);
-
-    migrator.migrationsDir = path.resolve(argv['migrations-dir']);
-
-    migrator.driver.createMigrationsTable(function(err) {
-      assert.ifError(err);
-      migrator.down(argv, onComplete.bind(this, migrator));
-    });
-  });
-}
-
-function executeDB() {
-
-  if(argv._.length > 0) {
-    argv.dbname = argv._.shift().toString();
-  }
-  else {
-
-    log.info('Error: You must enter a database name!');
-    return;
-  }
-
-  index.driver(config.getCurrent().settings, function(err, db)
-  {
-    if(global.mode === 'create')
-    {
-      db.createDatabase(argv.dbname, { ifNotExists: true }, function()
-      {
-        if(err) {
-          log.info('Error: Failed to create database!');
-        }
-        else {
-          log.info('Created database "' + argv.dbname + '"');
-        }
-
-        db.close();
+  dbmigrate = DBMigrate.getInstance();
+  if (dbmigrate.registerAPIHook) {
+    dbmigrate.registerAPIHook()
+      .then(function () {
+        dbmigrate.run();
       });
-    }
-    else if(global.mode === 'drop')
-    {
-      db.dropDatabase(argv.dbname, { ifExists: true }, function()
-      {
-        if(err) {
-          log.info('Error: Failed to drop database!');
-        }
-        else {
-          log.info('Deleted database "' + argv.dbname + '"');
-        }
-
-        db.close();
-      });
+<<<<<<< HEAD
     }
     else
       return;

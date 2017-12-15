@@ -1,118 +1,63 @@
-var recursive = require('final-fs').readdirRecursive;
+require('pkginfo')(module, 'version'); // jshint ignore:line
 var fs = require('fs');
-var driver = require('./lib/driver');
 var path = require('path');
-var log = require('./lib/log');
-var Migrator = require('./lib/migrator');
 
-exports.dataType = require('./lib/data_type');
-exports.config = require('./lib/config');
+exports.dataType = require('db-migrate-shared').dataType;
 
-exports.connect = function(config, callback) {
-  driver.connect(config, function(err, db) {
-    if (err) { callback(err); return; }
+function loadPluginList () {
+  var plugins = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8')
+  );
+  var targets = [];
 
-    if(global.migrationMode)
-    {
-      var dirPath = path.resolve(config['migrations-dir'] || 'migrations');
+  plugins = Object.assign(plugins.dependencies, plugins.devDependencies);
 
-      if(global.migrationMode !== 'all')
-      {
-        var switched = false,
-            newConf;
-
-        try {
-          newConf = require(path.resolve(config['migrations-dir'] || 'migrations', global.migrationMode) + '/config.json');
-          log.info('loaded extra config for migration subfolder: "' + global.migrationMode + '/config.json"');
-          switched = true;
-        } catch(e) {}
-
-        if(switched) {
-
-          db.switchDatabase(newConf, function()
-          {
-            global.locTitle = global.migrationMode;
-            callback(null, new Migrator(db, config['migrations-dir']));
-          });
-        }
-        else
-        {
-          global.locTitle = global.migrationMode;
-          callback(null, new Migrator(db, config['migrations-dir']));
-        }
-      }
-      else
-      {
-      recursive(dirPath, false, config['migrations-dir'] || 'migrations')
-      .then(function(files) {
-          var oldClose = db.close;
-
-          files = files.filter(function (file) {
-            return file !== 'migrations' && fs.statSync(file).isDirectory();
-          });
-
-          files.push('');
-
-          db.close = function(cb) { migrationFiles(files, callback, config, db, oldClose, cb); };
-
-          db.close();
-        });
-      }
-    }
-    else
-      callback(null, new Migrator(db, config['migrations-dir']));
-
-  });
-};
-
-exports.driver = function(config, callback) {
-
-  driver.connect(config, callback);
-};
-
-function migrationFiles(files, callback, config, db, close, cb) {
-  var file,
-      switched = false,
-      newConf;
-
-  if(files.length === 1)
-  {
-    db.close = close;
+  for (var plugin in plugins) {
+    if (plugin.startsWith('db-migrate-plugin')) targets.push(plugin);
   }
 
-  file = files.pop();
-
-  if(file !== '')
-  {
-
-    try {
-      newConf = require(path.resolve(file + '/config.json'));
-      log.info('loaded extra config for migration subfolder: "' + file + '/config.json"');
-      switched = true;
-    } catch(e) {}
-  }
-
-  db.switchDatabase((switched) ? newConf : config.database, function()
-  {
-    global.matching = file.substr(file.indexOf(config['migrations-dir'] || 'migrations') +
-        (config['migrations-dir'] || 'migrations').length + 1);
-
-    if(global.matching.length === 0)
-      global.matching = '';
-
-
-    global.locTitle = global.matching;
-    callback(null, new Migrator(db, config['migrations-dir']));
-
-    if(typeof(cb) === 'function')
-      cb();
-
-  });
+  return targets;
 }
 
-exports.createMigration = function(migration, callback) {
-  migration.write(function(err) {
-  if (err) { callback(err); return; }
-  callback(null, migration);
-  });
+function loadPlugins () {
+  var plugins = loadPluginList();
+  var i = 0;
+  var length = plugins.length;
+  var hooks = {};
+
+  for (; i < length; ++i) {
+    var plugin = require(path.join(process.cwd(), 'node_modules', plugins[i]));
+
+    if (
+      typeof plugin.name !== 'string' ||
+      !plugin.hooks ||
+      !plugin.loadPlugin
+    ) {
+      continue;
+    }
+
+    plugin.hooks.map(function (hook) {
+      hooks[hook] = hooks[hook] || [];
+      hooks[hook].push(plugin);
+    });
+  }
+
+  return hooks;
+}
+
+module.exports.getInstance = function (isModule, options, callback) {
+  delete require.cache[require.resolve('./api.js')];
+  delete require.cache[require.resolve('optimist')];
+  var Mod = require('./api.js');
+  var plugins = {};
+
+  try {
+    if (!options || !options.noPlugins) plugins = loadPlugins();
+  } catch (ex) {}
+
+  if (options && options.plugins) {
+    plugins = Object.assign(plugins, options.plugins);
+  }
+
+  return new Mod(plugins, isModule, options, callback);
 };
