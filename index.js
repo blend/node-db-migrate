@@ -1,3 +1,4 @@
+console.log('index.js');
 require('pkginfo')(module, 'version'); // jshint ignore:line
 var fs = require('fs');
 var path = require('path');
