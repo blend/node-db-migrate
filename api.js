@@ -228,7 +228,6 @@ dbmigrate.prototype = {
   },
 
   check: function (specification, opts, callback) {
-    console.log('api check');
     var executeCheck = load('check');
 
     if (arguments.length > 0) {
