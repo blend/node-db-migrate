@@ -1,3 +1,127 @@
+<a name="0.11.1"></a>
+## [0.11.1](https://github.com/db-migrate/node-db-migrate/compare/v0.11.0...v0.11.1) (2018-04-10)
+
+
+### Bug Fixes
+
+* **reset:** regression introduced in check functionality ([d8a735d](https://github.com/db-migrate/node-db-migrate/commit/d8a735d)), closes [#552](https://github.com/db-migrate/node-db-migrate/issues/552)
+
+
+
+<a name="0.11.0"></a>
+# [0.11.0](https://github.com/db-migrate/node-db-migrate/compare/v0.10.7...v0.11.0) (2018-04-10)
+
+
+### Features
+
+* **check:** add check functionality to determine migrations to run ([93e9f18](https://github.com/db-migrate/node-db-migrate/commit/93e9f18))
+
+
+
+<a name="0.10.7"></a>
+## [0.10.7](https://github.com/db-migrate/node-db-migrate/compare/v0.10.6...v0.10.7) (2018-03-27)
+
+
+### Bug Fixes
+
+* **progamableApi:** cmdOptions get passed into setDefaultArgv now ([ebdd75d](https://github.com/db-migrate/node-db-migrate/commit/ebdd75d))
+
+
+
+<a name="0.10.6"></a>
+## [0.10.6](https://github.com/db-migrate/node-db-migrate/compare/v0.10.5...v0.10.6) (2018-03-21)
+
+
+### Bug Fixes
+
+* **ci:** add ignores for backported features ([53dedc2](https://github.com/db-migrate/node-db-migrate/commit/53dedc2))
+
+
+### Features
+
+* **contribution:** enrich contribution instructions ([93b5cea](https://github.com/db-migrate/node-db-migrate/commit/93b5cea)), closes [#549](https://github.com/db-migrate/node-db-migrate/issues/549)
+* **contribution:** enrich contribution instructions, issues ([d87a734](https://github.com/db-migrate/node-db-migrate/commit/d87a734))
+* **progamableApi:** CMD options can be passed programatically now ([69d7605](https://github.com/db-migrate/node-db-migrate/commit/69d7605))
+* **progamableApi:** using const now ([a69e221](https://github.com/db-migrate/node-db-migrate/commit/a69e221))
+
+
+
+<a name="0.10.4"></a>
+## [0.10.4](https://github.com/db-migrate/node-db-migrate/compare/v0.10.3...v0.10.4) (2018-02-06)
+
+
+### Bug Fixes
+
+* **insert:** add missing insert entry to interface ([899b8bc](https://github.com/db-migrate/node-db-migrate/commit/899b8bc)), closes [#542](https://github.com/db-migrate/node-db-migrate/issues/542)
+
+
+
+<a name="0.10.3"></a>
+## [0.10.3](https://github.com/db-migrate/node-db-migrate/compare/v0.10.2...v0.10.3) (2018-02-03)
+
+
+### Bug Fixes
+
+* **db:** wrong reference to connect causes db:create to fail ([991ee76](https://github.com/db-migrate/node-db-migrate/commit/991ee76)), closes [#520](https://github.com/db-migrate/node-db-migrate/issues/520)
+* **exitCode:** wrong check for existence fixed ([3c6fc33](https://github.com/db-migrate/node-db-migrate/commit/3c6fc33))
+* **exitCode:** wrong exit code on db methods ([486cb78](https://github.com/db-migrate/node-db-migrate/commit/486cb78)), closes [#534](https://github.com/db-migrate/node-db-migrate/issues/534)
+* **log:** error ended up in unreadable errors ([16512f6](https://github.com/db-migrate/node-db-migrate/commit/16512f6)), closes [#524](https://github.com/db-migrate/node-db-migrate/issues/524) [#521](https://github.com/db-migrate/node-db-migrate/issues/521)
+* **switchDatabase:** no error was thrown on scope switch ([392d88c](https://github.com/db-migrate/node-db-migrate/commit/392d88c)), closes [#470](https://github.com/db-migrate/node-db-migrate/issues/470)
+
+
+### Features
+
+* **issuetemplate:** added a github issue template ([3c0fcbf](https://github.com/db-migrate/node-db-migrate/commit/3c0fcbf))
+
+
+
+<a name="0.10.2"></a>
+## [0.10.2](https://github.com/db-migrate/node-db-migrate/compare/v0.10.1...v0.10.2) (2017-12-01)
+
+
+### Bug Fixes
+
+* **log:** error ended up in unreadable errors ([97de65d](https://github.com/db-migrate/node-db-migrate/commit/97de65d)), closes [#524](https://github.com/db-migrate/node-db-migrate/issues/524) [#521](https://github.com/db-migrate/node-db-migrate/issues/521)
+
+
+
+<a name="0.10.1"></a>
+## [0.10.1](https://github.com/db-migrate/node-db-migrate/compare/v0.10.0...v0.10.1) (2017-11-27)
+
+
+### Bug Fixes
+
+* **db:** wrong reference to connect causes db:create to fail ([56cb75a](https://github.com/db-migrate/node-db-migrate/commit/56cb75a)), closes [#520](https://github.com/db-migrate/node-db-migrate/issues/520)
+
+## 0.10.0
+
+Note:
+
+This is a cornerstone release. It provides groundwork for many things to come and has worked
+on stability and flexibility, while mostly retaining backwards compatibility.
+
+This release was a rewrite of nearly the whole module. However backwards compatibility 
+was mostly preeserved. Bug fixes wont be listed for this release, all subsequent releases
+will follow the angular standard to automatically generate changelogs.
+
+New Features:
+ - Sync
+ - Driverless Core
+ - Plugin Hooks and overwrites
+ - Adjusted migration schema, to allow specific setup routines
+ - Version migration schemas itself for future iterations
+ - Promise style migrations
+ - Programmatic API
+ - Restructered major parts of db-migrate
+ - Transactional migrations
+ - New configuration options
+
+Find a full list of features added here:
+
+https://github.com/db-migrate/node-db-migrate/issues?utf8=%E2%9C%93&q=milestone%3Av0.10.0
+
+# Old Changelogs
+
 ## 0.1.0
 
 New Features:
