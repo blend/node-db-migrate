@@ -69,6 +69,7 @@ function dbmigrate (plugins, isModule, options, callback) {
     require('./lib/config.js'),
     this.internals
   );
+  console.log('this.config', this.config);
 
   // delayed loading of bluebird
   Promise = require('bluebird');
